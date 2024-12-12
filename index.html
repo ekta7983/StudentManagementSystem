@@ -1,45 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management System</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Student</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Student Management System</h1>
-        
-        <!-- Form for adding a student -->
-        <form id="studentForm">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-            
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age" required>
-            
-            <label for="class">Class:</label>
-            <input type="text" id="class" name="class" required>
-            
-            <button type="submit">Add Student</button>
-        </form>
+  <div class="navigation">
+    <!-- <button onclick="navigateTo('index.html')">Students</button> -->
+    <button onclick="navigateTo('/courses.html')">Courses</button>
+    <button onclick="navigateTo('/enrollments.html')">Enrollments</button>
+  </div>
+  
+  <h1>Add Student</h1>
+  <form id="addStudentForm">
+    <label for="FirstName">First Name:</label>
+    <input type="text" id="FirstName" name="FirstName" required>
 
-        <h2>Student List</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Age</th>
-                    <th>Class</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="studentTableBody">
-                <!-- Rows will be added dynamically -->
-            </tbody>
-        </table>
-    </div>
-    <script src="script.js"></script>
+    <label for="LastName">Last Name:</label>
+    <input type="text" id="LastName" name="LastName" required>
+
+    <label for="Gender">Gender:</label>
+    <select id="Gender" name="Gender" required>
+      <option value="Male">Male</option>
+      <option value="Female">Female</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <label for="DateOfBirth">Date of Birth:</label>
+    <input type="date" id="DateOfBirth" name="DateOfBirth" required>
+
+    <label for="PhoneNumber">Phone Number:</label>
+    <input type="tel" id="PhoneNumber" name="PhoneNumber" pattern="[0-9]{10}" required>
+
+    <label for="Email">Email:</label>
+    <input type="email" id="Email" name="Email" required>
+
+    <label for="Address">Address:</label>
+    <textarea id="Address" name="Address" rows="4" required></textarea>
+
+    <button type="submit">Add Student</button>
+  </form>
+  <h2>Student List</h2>
+<table id="studentTable" border="1">
+  <thead>
+    <tr>
+      <th>Student ID</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Gender</th>
+      <th>Date of Birth</th>
+      <th>Phone Number</th>
+      <th>Email</th>
+      <th>Address</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Data will be populated dynamically -->
+  </tbody>
+</table>
+
+
+  <script>
+     function navigateTo(page) {
+    window.location.href = page;
+  }
+
+    document.getElementById('addStudentForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      
+      // Capture form data
+      const formData = {
+        FirstName: document.getElementById('FirstName').value,
+        LastName: document.getElementById('LastName').value,
+        Gender: document.getElementById('Gender').value,
+        DateOfBirth: document.getElementById('DateOfBirth').value,
+        PhoneNumber: document.getElementById('PhoneNumber').value,
+        Email: document.getElementById('Email').value,
+        Address: document.getElementById('Address').value
+      };
+
+      try {
+        const response = await fetch('http://localhost:3000/students', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+          alert('Student added successfully!');
+        } else {
+          alert('Error adding student: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to add student.');
+      }
+    });
+
+    async function fetchStudents() {
+    try {
+      const response = await fetch('http://localhost:3000/students');
+      const students = await response.json();
+
+      const tableBody = document.querySelector('#studentTable tbody');
+      tableBody.innerHTML = ''; // Clear existing rows
+
+      students.forEach(student => {
+        const row = `
+          <tr>
+            <td>${student.StudentID}</td>
+            <td>${student.FirstName}</td>
+            <td>${student.LastName}</td>
+            <td>${student.Gender}</td>
+            <td>${student.DateOfBirth}</td>
+            <td>${student.PhoneNumber}</td>
+            <td>${student.Email}</td>
+            <td>${student.Address}</td>
+          </tr>
+        `;
+        tableBody.innerHTML += row;
+      });
+    } catch (error) {
+      console.error('Error fetching students:', error);
+      alert('Failed to load student data.');
+    }
+  }
+
+  // Call fetchStudents after adding a student
+  document.getElementById('addStudentForm').addEventListener('submit', () => {
+    fetchStudents();
+  });
+
+  // Fetch students when the page loads
+  fetchStudents();
+  </script>
 </body>
 </html>

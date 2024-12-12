@@ -15,15 +15,20 @@ body {
 }
 
 h1, h2 {
-    text-align: center;
+    /* text-align: center; */
+    margin-left:50px;
     color: #333;
 }
 
 form {
     display: flex;
+    width:40%;
+    /* align-items: center; */
     flex-direction: column;
     gap: 10px;
+    margin-left:50px;
     margin-bottom: 20px;
+   
 }
 
 form label {
@@ -48,7 +53,8 @@ button:hover {
 }
 
 table {
-    width: 100%;
+    width: 70%;
+    margin-left:50px;
     border-collapse: collapse;
     margin-top: 20px;
 }
@@ -75,3 +81,26 @@ th {
 .actions button:hover {
     background-color: #c82333;
 }
+
+.navigation {
+    margin: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .navigation button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .navigation button:hover {
+    background-color: #45a049;
+  }
+  

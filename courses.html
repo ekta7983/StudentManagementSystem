@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .courses-section {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.courses-section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.courses-section table th,
+.courses-section table td {
+  padding: 10px;
+  text-align: left;
+}
+
+.courses-section table th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.courses-section form {
+  margin-top: 20px;
+}
+
+.courses-section form label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.courses-section form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.navigation {
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.navigation button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.navigation button:hover {
+  background-color: #45a049;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <button onclick="navigateTo('/index.html')">Students</button>
+        <!-- <button onclick="navigateTo('courses.html')">Courses</button> -->
+        <button onclick="navigateTo('/enrollments.html')">Enrollments</button>
+      </div>
+    <div class="courses-section">
+        <h2>Courses</h2>
+        
+        <!-- Courses Table -->
+        <table id="coursesTable" border="1">
+          <thead>
+            <tr>
+              <th>Course ID</th>
+              <th>Course Name</th>
+              <th>Duration</th>
+              <th>Fee</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        
+        <!-- Add Course Form -->
+        <h3>Add a New Course</h3>
+        <form id="addCourseForm">
+          <label for="courseName">Course Name:</label>
+          <input type="text" id="courseName" name="CourseName" required />
+          
+          <label for="courseDuration">Duration:</label>
+          <input type="text" id="courseDuration" name="CourseDuration" required />
+          
+          <label for="courseFee">Fee:</label>
+          <input type="number" id="courseFee" name="CourseFee" required />
+          
+          <button type="submit">Add Course</button>
+        </form>
+      </div>
+      
+     <script>
+         function navigateTo(page) {
+    window.location.href = page;
+  }
+        document.addEventListener("DOMContentLoaded", () => {
+  const coursesTable = document.getElementById("coursesTable").querySelector("tbody");
+  const addCourseForm = document.getElementById("addCourseForm");
+
+  // Fetch all courses and display in the table
+  fetch("http://localhost:3000/courses")
+    .then((response) => response.json())
+    .then((data) => {
+      data.forEach((course) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${course.CourseID}</td>
+          <td>${course.CourseName}</td>
+          <td>${course.CourseDuration}</td>
+          <td>${course.CourseFee}</td>
+        `;
+        coursesTable.appendChild(row);
+      });
+    })
+    .catch((error) => console.error("Error fetching courses:", error));
+
+  // Add a new course
+  addCourseForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(addCourseForm);
+    const courseData = {
+      CourseName: formData.get("CourseName"),
+      CourseDuration: formData.get("CourseDuration"),
+      CourseFee: parseFloat(formData.get("CourseFee")),
+    };
+
+    fetch("http://localhost:3000/courses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(courseData),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to add course");
+        return response.json();
+      })
+      .then((data) => {
+        alert(data.message);
+
+        // Update the table with the new course
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${data.CourseID}</td>
+          <td>${courseData.CourseName}</td>
+          <td>${courseData.CourseDuration}</td>
+          <td>${courseData.CourseFee}</td>
+        `;
+        coursesTable.appendChild(row);
+
+        // Reset the form
+        addCourseForm.reset();
+      })
+      .catch((error) => console.error("Error adding course:", error));
+  });
+});
+
+     </script>
+</body>
+</html>

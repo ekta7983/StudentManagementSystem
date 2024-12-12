@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .enrollments-section {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.enrollments-section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.enrollments-section table th,
+.enrollments-section table td {
+  padding: 10px;
+  text-align: left;
+}
+
+.enrollments-section table th {
+  background-color: #2196F3;
+  color: white;
+}
+
+.enrollments-section form {
+  margin-top: 20px;
+}
+
+.enrollments-section form label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.enrollments-section form input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.navigation {
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.navigation button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.navigation button:hover {
+  background-color: #45a049;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <button onclick="navigateTo('/index.html')">Students</button>
+        <button onclick="navigateTo('/courses.html')">Courses</button>
+        <!-- <button onclick="navigateTo('enrollments.html')">Enrollments</button> -->
+      </div>
+    <div class="enrollments-section">
+        <h2>Enrollments</h2>
+      
+        <!-- Enrollments Table -->
+        <table id="enrollmentsTable" border="1">
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Enrollment Date</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      
+        <!-- Add Enrollment Form -->
+        <h3>Add a New Enrollment</h3>
+        <form id="addEnrollmentForm">
+          <label for="studentId">Student ID:</label>
+          <input type="number" id="studentId" name="StudentID" required />
+      
+          <label for="courseId">Course ID:</label>
+          <input type="number" id="courseId" name="CourseID" required />
+      
+          <label for="enrollmentDate">Enrollment Date:</label>
+          <input type="date" id="enrollmentDate" name="EnrollmentDate" required />
+      
+          <button type="submit">Add Enrollment</button>
+        </form>
+      </div>
+      <script>
+
+function navigateTo(page) {
+    window.location.href = page;
+  }
+        document.addEventListener("DOMContentLoaded", () => {
+  const enrollmentsTable = document.getElementById("enrollmentsTable").querySelector("tbody");
+  const addEnrollmentForm = document.getElementById("addEnrollmentForm");
+
+  // Fetch all enrollments for a specific student
+  const fetchEnrollments = (studentId) => {
+    fetch(`http://localhost:3000/enrollments/${studentId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        enrollmentsTable.innerHTML = ""; // Clear existing table rows
+        data.forEach((enrollment) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${enrollment.CourseName}</td>
+            <td>${enrollment.EnrollmentDate}</td>
+          `;
+          enrollmentsTable.appendChild(row);
+        });
+      })
+      .catch((error) => console.error("Error fetching enrollments:", error));
+  };
+
+  // Add a new enrollment
+  addEnrollmentForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(addEnrollmentForm);
+    const enrollmentData = {
+      StudentID: parseInt(formData.get("StudentID")),
+      CourseID: parseInt(formData.get("CourseID")),
+      EnrollmentDate: formData.get("EnrollmentDate"),
+    };
+
+    fetch("http://localhost:3000/enrollments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(enrollmentData),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to add enrollment");
+        return response.json();
+      })
+      .then((data) => {
+        alert(data.message);
+
+        // Update the table with the new enrollment (fetch for updated data)
+        fetchEnrollments(enrollmentData.StudentID);
+
+        // Reset the form
+        addEnrollmentForm.reset();
+      })
+      .catch((error) => console.error("Error adding enrollment:", error));
+  });
+
+  // Example: Fetch enrollments for a student ID (update the ID dynamically based on your use case)
+  fetchEnrollments(1); // Replace 1 with the actual StudentID to test
+});
+
+      </script>
+</body>
+</html>
